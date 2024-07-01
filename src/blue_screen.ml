@@ -63,6 +63,21 @@ let transform_improved_2 ~foreground ~background =
           else pixel))
 ;;
 
+let invert_pixel pixel max_val : Pixel.t =
+  ( max_val - Pixel.red pixel
+  , max_val - Pixel.green pixel
+  , max_val - Pixel.blue pixel )
+;;
+
+let solarize image : Image.t =
+  let max_val = Image.max_val image in
+  Image.map image ~f:(fun pixel ->
+    let pixel_avg =
+      (Pixel.red pixel + Pixel.green pixel + Pixel.blue pixel) / 3
+    in
+    if pixel_avg > max_val / 2 then invert_pixel pixel max_val else pixel)
+;;
+
 let%expect_test "test blue_screen" =
   let reference_image =
     Image.load_ppm ~filename:"../images/reference-oz_bluescreen_vfx.ppm"

@@ -9,8 +9,8 @@ let set_image ~image ~x ~y ~error_val =
 ;;
 
 (* This should look familiar by now! *)
-let transform oldimage =
-  let image = Grayscale.transform oldimage in
+let transform image =
+  let image = Grayscale.transform image in
   let _ =
     Image.mapi image ~f:(fun ~x ~y pixel ->
       let max_val = Image.max_val image in
@@ -51,6 +51,21 @@ let transform oldimage =
   image
 ;;
 
+let invert_pixel pixel max_val : Pixel.t =
+  ( max_val - Pixel.red pixel
+  , max_val - Pixel.green pixel
+  , max_val - Pixel.blue pixel )
+;;
+
+let solarize image : Image.t =
+  let max_val = Image.max_val image in
+  Image.map image ~f:(fun pixel ->
+    let pixel_avg =
+      (Pixel.red pixel + Pixel.green pixel + Pixel.blue pixel) / 3
+    in
+    if pixel_avg > max_val / 2 then invert_pixel pixel max_val else pixel)
+;;
+
 let command =
   Command.basic
     ~summary:"Dither an image"
@@ -62,7 +77,8 @@ let command =
           ~doc:"IMAGE_FILE the PPM image file"
       in
       fun () ->
-        let image = Image.load_ppm ~filename |> transform in
+        (* let image = Image.load_ppm ~filename |> transform in *)
+        let image = Image.load_ppm ~filename |> solarize in
         Image.save_ppm
           image
           ~filename:
