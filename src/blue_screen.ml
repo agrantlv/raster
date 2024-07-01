@@ -10,6 +10,29 @@ let transform ~foreground ~background =
     | r, g, b -> if b > r + g then Image.get background ~x ~y else pixel)
 ;;
 
+let%expect_test "test blue_screen" =
+  let reference_image =
+    Image.load_ppm ~filename:"../images/reference-oz_bluescreen_vfx.ppm"
+    (* Image.load_ppm ~filename:"../images/beach_portrait.ppm" *)
+  in
+  let og_image_background =
+    Image.load_ppm ~filename:"../images/meadow.ppm"
+  in
+  let og_image_foreground =
+    Image.load_ppm ~filename:"../images/oz_bluescreen.ppm"
+  in
+  let new_image =
+    transform ~foreground:og_image_foreground ~background:og_image_background
+  in
+  let _ =
+    Image.mapi new_image ~f:(fun ~x ~y pixel ->
+      if not (Pixel.equal pixel (Image.get reference_image ~x ~y))
+      then print_s [%message (x : int) (y : int)];
+      pixel)
+  in
+  [%expect ""]
+;;
+
 let command =
   Command.basic
     ~summary:

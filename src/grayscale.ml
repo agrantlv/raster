@@ -4,10 +4,8 @@ open Core
    something to the image instead of just leaving it untouched. *)
 let transform image : Image.t =
   Image.map image ~f:(fun pixel ->
-    match pixel with
-    | r, g, b ->
-      let avg_val = (r + g + b) / 3 in
-      avg_val, avg_val, avg_val)
+    Pixel.of_int
+      ((Pixel.red pixel + Pixel.green pixel + Pixel.blue pixel) / 3))
 ;;
 
 let%expect_test "test grayscale" =
