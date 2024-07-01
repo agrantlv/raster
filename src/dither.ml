@@ -9,8 +9,8 @@ let set_image ~image ~x ~y ~error_val =
 ;;
 
 (* This should look familiar by now! *)
-let transform image =
-  let image = Grayscale.transform image in
+let transform oldimage =
+  let image = Grayscale.transform oldimage in
   let _ =
     Image.mapi image ~f:(fun ~x ~y pixel ->
       let max_val = Image.max_val image in

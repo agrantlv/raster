@@ -10,6 +10,59 @@ let transform ~foreground ~background =
     | r, g, b -> if b > r + g then Image.get background ~x ~y else pixel)
 ;;
 
+let _transform_improved ~foreground ~background =
+  let blue_threshold = 35 * Image.max_val foreground / 100 in
+  let non_blue_threshold = 52 * Image.max_val foreground / 100 in
+  Image.mapi foreground ~f:(fun ~x ~y pixel ->
+    match pixel with
+    | r, g, b ->
+      if r < non_blue_threshold
+         && g < non_blue_threshold
+         && b > blue_threshold
+      then Image.get background ~x ~y
+      else pixel)
+;;
+
+let transform_improved_2 ~foreground ~background =
+  let radius = 2 in
+  let height = Image.height foreground in
+  let width = Image.width foreground in
+  Image.mapi foreground ~f:(fun ~x ~y pixel ->
+    let new_x_min_radius = if x < radius then x else radius in
+    let new_y_min_radius = if y < radius then y else radius in
+    let new_x_max_radius =
+      if x + radius > width - 1 then width - 1 - x else radius
+      (* if x + radius > width then width - x else radius *)
+    in
+    let new_y_max_radius =
+      if y + radius > height - 1 then height - 1 - y else radius
+      (* if y + radius > height then height - y else radius *)
+    in
+    let mean =
+      Image.mean_pixel
+        (Image.slice
+           foreground
+           ~x_start:(x - new_x_min_radius)
+           ~x_end:(x + new_x_max_radius)
+           ~y_start:(y - new_y_min_radius)
+           ~y_end:(y + new_y_max_radius))
+    in
+    let blue_threshold = 47 * Image.max_val foreground / 100 in
+    let non_blue_threshold = 40 * Image.max_val foreground / 100 in
+    match mean with
+    | r, g, b ->
+      if b > r + g
+      then Image.get background ~x ~y
+      else (
+        match pixel with
+        | pixel_r, pixel_g, pixel_b ->
+          if pixel_r < non_blue_threshold
+             && pixel_g < non_blue_threshold
+             && pixel_b > blue_threshold
+          then Image.get background ~x ~y
+          else pixel))
+;;
+
 let%expect_test "test blue_screen" =
   let reference_image =
     Image.load_ppm ~filename:"../images/reference-oz_bluescreen_vfx.ppm"
@@ -52,7 +105,7 @@ let command =
       fun () ->
         let foreground = Image.load_ppm ~filename:foreground_file in
         let background = Image.load_ppm ~filename:background_file in
-        let image' = transform ~foreground ~background in
+        let image' = transform_improved_2 ~foreground ~background in
         Image.save_ppm
           image'
           ~filename:
