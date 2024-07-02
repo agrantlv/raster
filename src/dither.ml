@@ -51,20 +51,15 @@ let transform image =
   image
 ;;
 
-let invert_pixel pixel max_val : Pixel.t =
-  ( max_val - Pixel.red pixel
-  , max_val - Pixel.green pixel
-  , max_val - Pixel.blue pixel )
-;;
+(* let invert_pixel pixel max_val : Pixel.t = ( max_val - Pixel.red pixel ,
+   max_val - Pixel.green pixel , max_val - Pixel.blue pixel ) ;; *)
 
-let solarize image : Image.t =
-  let max_val = Image.max_val image in
-  Image.map image ~f:(fun pixel ->
-    let pixel_avg =
-      (Pixel.red pixel + Pixel.green pixel + Pixel.blue pixel) / 3
-    in
-    if pixel_avg > max_val / 2 then invert_pixel pixel max_val else pixel)
-;;
+(* let solarize image : Image.t = let max_val = Image.max_val image in let
+   threshold = 4 * max_val / 10 in Image.map image ~f:(fun pixel -> let r =
+   Pixel.red pixel in let g = Pixel.green pixel in let b = Pixel.blue pixel
+   in let new_r = if r > threshold then max_val - r else r in let new_g = if
+   g > threshold then max_val - g else g in let new_b = if b > threshold then
+   max_val - b else b in new_r, new_g, new_b) ;; *)
 
 let command =
   Command.basic
@@ -78,7 +73,7 @@ let command =
       in
       fun () ->
         (* let image = Image.load_ppm ~filename |> transform in *)
-        let image = Image.load_ppm ~filename |> solarize in
+        let image = Image.load_ppm ~filename |> transform in
         Image.save_ppm
           image
           ~filename:
