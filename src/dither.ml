@@ -31,11 +31,11 @@ let transform image =
             ~image
             ~x:(x - 1)
             ~y:(y + 1)
-            ~error_val:(error_val * 3 / 16)
+            ~error_val:(error_val * 5 / 16)
       in
       let _ =
         if y < Image.height image - 1
-        then set_image ~image ~x ~y:(y + 1) ~error_val:(error_val * 5 / 16)
+        then set_image ~image ~x ~y:(y + 1) ~error_val:(error_val * 3 / 16)
       in
       let _ =
         if x < Image.width image - 1 && y < Image.height image - 1
