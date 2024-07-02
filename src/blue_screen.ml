@@ -47,8 +47,8 @@ let transform_improved_2 ~foreground ~background =
            ~y_start:(y - new_y_min_radius)
            ~y_end:(y + new_y_max_radius))
     in
-    (* Pretty good settings: let blue_threshold = 40 * Image.max_val
-       foreground / 100 in let non_blue_threshold = 35 * Image.max_val
+    (* Pretty good settings: let blue_threshold = 43 * Image.max_val
+       foreground / 100 in let non_blue_threshold = 44 * Image.max_val
        foreground / 100 in *)
     (* best settings*)
     let blue_threshold = 40 * Image.max_val foreground / 100 in
