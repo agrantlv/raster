@@ -24,7 +24,7 @@ let _transform_improved ~foreground ~background =
 ;;
 
 let transform_improved_2 ~foreground ~background =
-  let radius = 2 in
+  let radius = 5 in
   let height = Image.height foreground in
   let width = Image.width foreground in
   Image.mapi foreground ~f:(fun ~x ~y pixel ->
@@ -47,8 +47,12 @@ let transform_improved_2 ~foreground ~background =
            ~y_start:(y - new_y_min_radius)
            ~y_end:(y + new_y_max_radius))
     in
-    let blue_threshold = 47 * Image.max_val foreground / 100 in
-    let non_blue_threshold = 40 * Image.max_val foreground / 100 in
+    (* Pretty good settings: let blue_threshold = 40 * Image.max_val
+       foreground / 100 in let non_blue_threshold = 35 * Image.max_val
+       foreground / 100 in *)
+    (* best settings*)
+    let blue_threshold = 40 * Image.max_val foreground / 100 in
+    let non_blue_threshold = 44 * Image.max_val foreground / 100 in
     match mean with
     | r, g, b ->
       if b > r + g
@@ -60,9 +64,8 @@ let transform_improved_2 ~foreground ~background =
              && pixel_g < non_blue_threshold
              && pixel_b > blue_threshold
           then Image.get background ~x ~y
-          else pixel))
+          else pixel (* pixel *)))
 ;;
-
 
 let%expect_test "test blue_screen" =
   let reference_image =
@@ -107,7 +110,6 @@ let command =
         let foreground = Image.load_ppm ~filename:foreground_file in
         let background = Image.load_ppm ~filename:background_file in
         let image' = transform_improved_2 ~foreground ~background in
-        
         Image.save_ppm
           image'
           ~filename:
